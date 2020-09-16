@@ -185,7 +185,7 @@ func Parse(dest interface{}, cacheStore *sync.Map, namer Namer) (*Schema, error)
 	}
 
 	for _, field := range schema.FieldsByDBName {
-		if field.HasDefaultValue && field.DefaultValueInterface == nil {
+		if (field.HasDefaultValue && field.DefaultValueInterface == nil) && !field.HasGeneratedValue {
 			schema.FieldsWithDefaultDBValue = append(schema.FieldsWithDefaultDBValue, field)
 		}
 	}
@@ -201,6 +201,12 @@ func Parse(dest interface{}, cacheStore *sync.Map, namer Namer) (*Schema, error)
 				field.HasDefaultValue = true
 				field.AutoIncrement = true
 			}
+		}
+	}
+
+	for _, field := range schema.FieldsByDBName {
+		if field.HasGeneratedValue {
+			schema.FieldsWithDefaultDBValue = append(schema.FieldsWithDefaultDBValue, field)
 		}
 	}
 

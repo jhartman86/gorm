@@ -46,6 +46,8 @@ type Field struct {
 	Updatable             bool
 	Readable              bool
 	HasDefaultValue       bool
+	HasGeneratedValue     bool
+	GeneratedString       string
 	AutoCreateTime        TimeType
 	AutoUpdateTime        TimeType
 	DefaultValue          string
@@ -150,6 +152,14 @@ func (schema *Schema) ParseField(fieldStruct reflect.StructField) *Field {
 	if v, ok := field.TagSettings["DEFAULT"]; ok {
 		field.HasDefaultValue = true
 		field.DefaultValue = v
+		field.Creatable = false
+		field.Updatable = false
+	}
+
+	if v, ok := field.TagSettings["GENERATED"]; ok {
+		field.HasDefaultValue = true
+		field.HasGeneratedValue = true
+		field.GeneratedString = v
 	}
 
 	if num, ok := field.TagSettings["SIZE"]; ok {

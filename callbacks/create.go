@@ -242,6 +242,9 @@ func ConvertToCreateValues(stmt *gorm.Statement) (values clause.Values) {
 
 		for _, db := range stmt.Schema.DBNames {
 			if field := stmt.Schema.FieldsByDBName[db]; !field.HasDefaultValue || field.DefaultValueInterface != nil {
+				if field.HasGeneratedValue {
+					continue
+				}
 				if v, ok := selectColumns[db]; (ok && v) || (!ok && !restricted) {
 					values.Columns = append(values.Columns, clause.Column{Name: db})
 				}
@@ -280,6 +283,9 @@ func ConvertToCreateValues(stmt *gorm.Statement) (values clause.Values) {
 				}
 
 				for _, field := range stmt.Schema.FieldsWithDefaultDBValue {
+					if field.HasGeneratedValue {
+						continue
+					}
 					if v, ok := selectColumns[field.DBName]; (ok && v) || (!ok && !restricted) {
 						if v, isZero := field.ValueOf(rv); !isZero {
 							if len(defaultValueFieldsHavingValue[field]) == 0 {
@@ -317,6 +323,9 @@ func ConvertToCreateValues(stmt *gorm.Statement) (values clause.Values) {
 			}
 
 			for _, field := range stmt.Schema.FieldsWithDefaultDBValue {
+				if field.HasGeneratedValue {
+					continue
+				}
 				if v, ok := selectColumns[field.DBName]; (ok && v) || (!ok && !restricted) {
 					if v, isZero := field.ValueOf(stmt.ReflectValue); !isZero {
 						values.Columns = append(values.Columns, clause.Column{Name: field.DBName})

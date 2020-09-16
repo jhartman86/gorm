@@ -76,6 +76,10 @@ func (m Migrator) FullDataTypeOf(field *schema.Field) (expr clause.Expr) {
 		}
 	}
 
+	if field.HasGeneratedValue && (field.GeneratedString != "") {
+		expr.SQL += " GENERATED " + field.GeneratedString
+	}
+
 	return
 }
 
